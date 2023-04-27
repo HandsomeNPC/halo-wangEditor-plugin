@@ -17,11 +17,11 @@
 </template>
 
 <script lang="ts" setup>
+import axios from 'axios'
+import $http from '@/utils/request'
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
-
 import {onBeforeUnmount, ref, shallowRef, onMounted, watch} from 'vue'
 import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
-
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
 //模式:默认
@@ -30,10 +30,20 @@ const mode = 'default';
 const valueHtml = ref('');
 // 模拟 ajax 异步获取内容
 onMounted(() => {
-  setTimeout(() => {
-    valueHtml.value = ''
-  }, 1500)
+  if (location.href.includes('?')) {
+    getHeadContent()
+  }
 })
+// http://localhost:8090/apis/api.console.halo.run/v1alpha1/posts/3ebff8d4-b1f7-4065-b734-040c13483a8a/head-content
+const getHeadContent = () => {
+  const name = getQueryVariable(location.href, 'name')
+  $http.get(`/apis/api.console.halo.run/v1alpha1/posts/${name}/head-content`).then((res) => {
+    console.log(res.data);
+    valueHtml.value = res.data.raw
+  }).catch((err) => {
+    console.log(err);
+  })
+}
 //工具栏配置
 const toolbarConfig = {}
 //编辑框配置
@@ -44,6 +54,19 @@ onBeforeUnmount(() => {
   if (editor == null) return
   editor.destroy()
 })
+const getQueryVariable = (url: string, variable: string) => {
+  var str = url.split('?');
+  var query = str[1];
+  var vars = query.split('&');
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split("=");
+    console.log(pair);
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  }
+  return false;
+}
 const handleCreated = (editor: any) => {
   editorRef.value = editor // 记录 editor 实例，重要！
 }
