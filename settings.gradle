@@ -7,5 +7,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'plugin-stackedit'
+rootProject.name = 'halo-wangEditor-plugin'
 
