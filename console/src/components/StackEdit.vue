@@ -34,11 +34,9 @@ onMounted(() => {
     getHeadContent()
   }
 })
-// http://localhost:8090/apis/api.console.halo.run/v1alpha1/posts/3ebff8d4-b1f7-4065-b734-040c13483a8a/head-content
 const getHeadContent = () => {
   const name = getQueryVariable(location.href, 'name')
   $http.get(`/apis/api.console.halo.run/v1alpha1/posts/${name}/head-content`).then((res) => {
-    console.log(res.data);
     valueHtml.value = res.data.raw
   }).catch((err) => {
     console.log(err);
