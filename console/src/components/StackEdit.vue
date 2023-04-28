@@ -75,7 +75,6 @@ onMounted(() => {
   if (location.href.includes('?')) {
     getHeadContent()
   }
-  console.log(editorRef.value);
 })
 const getHeadContent = () => {
   const name = getQueryVariable(location.href, 'name')
@@ -94,10 +93,6 @@ const editorConfig: any = {
 let insertTemp: any;
 let isSubmit: boolean = false;
 editorConfig.MENU_CONF['uploadImage'] = {
-  // 自己选择文件
-  // 自己上传文件，并得到图片 url alt href
-  // 最后插入图片
-  // insertFn(url, alt, href)
   customBrowseAndUpload(insertFn: any) {   // TS 语法
     visible.value = true
     insertTemp = insertFn
@@ -109,7 +104,6 @@ editorConfig.MENU_CONF['uploadImage'] = {
 }
 
 const handleSubmit = () => {
-  console.log(formState.imgUrl)
   isSubmit = true;
   editorConfig.MENU_CONF['uploadImage'].customBrowseAndUpload(insertTemp);
   isSubmit = false;
@@ -127,7 +121,6 @@ const getQueryVariable = (url: string, variable: string) => {
   var vars = query.split('&');
   for (var i = 0; i < vars.length; i++) {
     var pair = vars[i].split("=");
-    console.log(pair);
     if (pair[0] == variable) {
       return pair[1];
     }
