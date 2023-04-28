@@ -7,23 +7,65 @@
       :mode="mode"
     />
     <Editor
-      style="height: 500px; overflow-y: hidden;"
+      style="height: 770px; overflow-y: hidden;"
       v-model="valueHtml"
       :defaultConfig="editorConfig"
       :mode="mode"
       @onCreated="handleCreated"
     />
+    <VModal
+      @close="visible = false"
+      :title="'上传图片'"
+      :visible="visible"
+      :width="650"
+    >
+      <FormKit
+        id="link-form"
+        v-model="formState"
+        name="link-form"
+        type="form"
+      >
+        <FormKit
+          type="attachment"
+          name="imgUrl"
+          label="图片url"
+        ></FormKit>
+      </FormKit>
+
+      <template #footer>
+        <VSpace>
+          <VButton
+            type="secondary"
+            @click="handleSubmit"
+          >
+            提交
+          </VButton>
+        </VSpace>
+      </template>
+    </VModal>
   </div>
 </template>
 
 <script lang="ts" setup>
 import axios from 'axios'
+import {Toast, VButton, VModal, VSpace} from "@halo-dev/components";
 import $http from '@/utils/request'
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
-import {onBeforeUnmount, ref, shallowRef, onMounted, watch} from 'vue'
+import {onBeforeUnmount, ref, shallowRef, onMounted, watch, reactive} from 'vue'
 import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
+const visible = ref(false)
+const formState = reactive({
+  imgUrl: ''
+})
+
+const onVisibleChange = (visible: boolean) => {
+  emit("update:visible", visible);
+  if (!visible) {
+    emit("close");
+  }
+};
 //模式:默认
 const mode = 'default';
 // 内容 HTML
@@ -33,6 +75,7 @@ onMounted(() => {
   if (location.href.includes('?')) {
     getHeadContent()
   }
+  console.log(editorRef.value);
 })
 const getHeadContent = () => {
   const name = getQueryVariable(location.href, 'name')
@@ -45,7 +88,33 @@ const getHeadContent = () => {
 //工具栏配置
 const toolbarConfig = {}
 //编辑框配置
-const editorConfig = {placeholder: '请输入内容...'}
+const editorConfig: any = {
+  MENU_CONF: {}
+}
+let insertTemp: any;
+let isSubmit: boolean = false;
+editorConfig.MENU_CONF['uploadImage'] = {
+  // 自己选择文件
+  // 自己上传文件，并得到图片 url alt href
+  // 最后插入图片
+  // insertFn(url, alt, href)
+  customBrowseAndUpload(insertFn: any) {   // TS 语法
+    visible.value = true
+    insertTemp = insertFn
+    if (isSubmit) {
+      insertFn(formState.imgUrl);
+      formState.imgUrl = '';
+    }
+  }
+}
+
+const handleSubmit = () => {
+  console.log(formState.imgUrl)
+  isSubmit = true;
+  editorConfig.MENU_CONF['uploadImage'].customBrowseAndUpload(insertTemp);
+  isSubmit = false;
+  visible.value = false;
+}
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {
   const editor = editorRef.value
@@ -71,6 +140,8 @@ const handleCreated = (editor: any) => {
 const emit = defineEmits<{
   (event: "update:raw", value: string): void;
   (event: "update:content", value: string): void;
+  (event: "update:visible", value: boolean): void;
+  (event: "close"): void;
 }>();
 
 watch(
