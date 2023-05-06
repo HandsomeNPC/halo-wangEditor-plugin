@@ -214,4 +214,11 @@ watch(
   }
 );
 
-</script>   
+</script>
+
+<style>
+.w-e-textarea-video-container {
+  display: flex !important;
+  justify-content: center !important;
+}
+</style>
