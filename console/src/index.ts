@@ -1,16 +1,16 @@
 import {definePlugin} from "@halo-dev/console-shared";
 import {markRaw} from "vue";
-import StackEdit from "./components/StackEdit.vue";
+import WangEditor from "./components/wangEditor.vue";
 
 export default definePlugin({
   extensionPoints: {
     "editor:create": () => {
       return [
         {
-          name: "stackedit",
-          displayName: "StackEdit",
-          component: markRaw(StackEdit),
-          rawType: "markdown",
+          name: "wangEditor",
+          displayName: "WangEditor",
+          component: markRaw(WangEditor),
+          rawType: "html",
         },
       ];
     },
