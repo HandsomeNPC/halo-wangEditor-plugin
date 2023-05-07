@@ -51,13 +51,13 @@ task buildFrontend(type: NpxTask) {
     args = ['build']
 }
 
-task pnpmInstall(type: NpxTask) {
-    command = "pnpm"
+task (type: NpxTask) {
+    command = "npm"
     args = ["install"]
 }
 
 build {
     // build frontend before build
     tasks.getByName('compileJava').dependsOn('buildFrontend')
-    tasks.getByName("buildFrontend").dependsOn("pnpmInstall")
+    tasks.getByName("buildFrontend").dependsOn("npmInstall")
 }

@@ -11,9 +11,6 @@ wangEditor是一个开源的富文本编辑器,官网:https://www.wangeditor.com
 首先执行以下命令创建插件Jar包
 
 ```shell
-cd console
-npm install
-cd ../
 ./gradlew build
 ```
 
