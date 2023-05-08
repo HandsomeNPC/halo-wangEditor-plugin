@@ -24,12 +24,18 @@
       :accepts="attachmentAccepts"
       @select="onAttachmentsSelect"
     />
+
+    <div>
+      <span>字数统计：</span>
+      <span>{{ wordNumber }}</span>
+      <span>字</span>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import "@wangeditor/editor/dist/css/style.css"; // 引入 css
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef } from "vue";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import type {
   IDomEditor,
@@ -59,6 +65,21 @@ const emit = defineEmits<{
   (event: "update:content", value: string): void;
   (event: "update", value: string): void;
 }>();
+
+// 字数
+const wordNumber = ref(0);
+
+/**
+ * 统计html中的字数
+ * @param html
+ */
+const getWordNumber = (html: string) => {
+  let text = html.replace(/<[^>]+>/g, ""); // 去掉 HTML 标签
+  text = text.replace(/[!-~]+/g, "v"); //转换半角符号
+  text = text.replace(/[a-zA-Z0-9]{2,}/g, "x"); //替换单词
+  text = text.replace(/\s+/g, ""); // 去掉空格
+  return text.length; // 返回字符串长度
+};
 
 // 工具栏配置
 const toolbar = ref();
@@ -176,6 +197,7 @@ const onChange = (editor: IDomEditor) => {
   const editorHtml = editor.getHtml();
   emit("update:raw", editorHtml);
   emit("update:content", editorHtml);
+  wordNumber.value = getWordNumber(editorHtml);
 
   if (editorHtml !== props.raw) {
     emit("update", editorHtml);
