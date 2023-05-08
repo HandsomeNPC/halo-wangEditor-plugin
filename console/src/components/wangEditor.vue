@@ -25,7 +25,7 @@
       @select="onAttachmentsSelect"
     />
 
-    <div>
+    <div style="height: 20px">
       <span>字数统计：</span>
       <span>{{ wordNumber }}</span>
       <span>字</span>
@@ -181,7 +181,9 @@ const editorConfig: Partial<IEditorConfig> = {
 
 const editorStyles = computed(() => {
   return {
-    height: `calc(100% - ${toolbarHeight.value}px - 1px)`,
+    // 1px = 工具栏底部 border
+    // 20px = 底部字数统计
+    height: `calc(100% - ${toolbarHeight.value}px - 1px - 20px)`,
   };
 });
 
