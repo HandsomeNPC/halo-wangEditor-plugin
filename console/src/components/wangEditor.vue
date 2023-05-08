@@ -47,9 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import axios from 'axios'
 import {Toast, VButton, VModal, VSpace} from "@halo-dev/components";
-import $http from '@/utils/request'
 import '@wangeditor/editor/dist/css/style.css' // 引入 css
 import {onBeforeUnmount, ref, shallowRef, onMounted, watch, reactive} from 'vue'
 import {Editor, Toolbar} from '@wangeditor/editor-for-vue'
@@ -59,31 +57,38 @@ const visible = ref(false)
 const formState = reactive({
   imgUrl: ''
 })
+const valueHtml = ref('');
 
-const onVisibleChange = (visible: boolean) => {
-  emit("update:visible", visible);
-  if (!visible) {
-    emit("close");
-  }
-};
 //模式:默认
 const mode = 'default';
-// 内容 HTML
-const valueHtml = ref('');
-// 模拟 ajax 异步获取内容
-onMounted(() => {
-  if (location.href.includes('?')) {
-    getHeadContent()
+
+const props = withDefaults(
+  defineProps<{
+    raw?: string;
+    content: string;
+  }>(),
+  {
+    raw: "",
+    content: "",
   }
-})
-const getHeadContent = () => {
-  const name = getQueryVariable(location.href, 'name')
-  $http.get(`/apis/api.console.halo.run/v1alpha1/posts/${name}/head-content`).then((res) => {
-    valueHtml.value = res.data.raw
-  }).catch((err) => {
-    console.log(err);
-  })
-}
+);
+
+valueHtml.value = props.raw;
+
+const emit = defineEmits<{
+  (event: "update:raw", value: string): void;
+  (event: "update:content", value: string): void;
+}>();
+
+watch(
+  () => valueHtml.value,
+  () => {
+    emit("update:raw", valueHtml.value);
+    emit("update:content", valueHtml.value);
+
+  }
+);
+
 //工具栏配置
 const toolbarConfig = {}
 
@@ -95,29 +100,29 @@ toolbarConfig.toolbarKeys = [
   '|',
 
   // 菜单 key
-  'bold', 'underline','italic',
+  'bold', 'underline', 'italic',
 
   // 菜单组，包含多个菜单
   {
     key: 'group-more-style', // 必填，要以 group 开头
     title: '更多样式', // 必填
     iconSvg: '<svg viewBox="0 0 1024 1024"><path d="M204.8 505.6m-76.8 0a76.8 76.8 0 1 0 153.6 0 76.8 76.8 0 1 0-153.6 0Z"></path><path d="M505.6 505.6m-76.8 0a76.8 76.8 0 1 0 153.6 0 76.8 76.8 0 1 0-153.6 0Z"></path><path d="M806.4 505.6m-76.8 0a76.8 76.8 0 1 0 153.6 0 76.8 76.8 0 1 0-153.6 0Z"></path></svg>', // 可选
-    menuKeys: ["through", "code", "sup","sub","clearStyle"] // 下级菜单 key ，必填
+    menuKeys: ["through", "code", "sup", "sub", "clearStyle"] // 下级菜单 key ，必填
   },
-  'color','bgColor',
+  'color', 'bgColor',
   '|',
-  'fontSize','fontFamily','lineHeight',
+  'fontSize', 'fontFamily', 'lineHeight',
   '|',
-  'bulletedList','numberedList','todo',
+  'bulletedList', 'numberedList', 'todo',
   {
-    key:'group-justify',
+    key: 'group-justify',
     title: '对齐',
     iconSvg: '<svg viewBox="0 0 1024 1024"><path d="M768 793.6v102.4H51.2v-102.4h716.8z m204.8-230.4v102.4H51.2v-102.4h921.6z m-204.8-230.4v102.4H51.2v-102.4h716.8zM972.8 102.4v102.4H51.2V102.4h921.6z"></path></svg>',
     menuKeys: ['justifyLeft', 'justifyRight', 'justifyCenter', 'justifyJustify']
   },
   {
-    key:'group-indent',
-    title:'缩进',
+    key: 'group-indent',
+    title: '缩进',
     iconSvg: '<svg viewBox="0 0 1024 1024"><path d="M0 64h1024v128H0z m384 192h640v128H384z m0 192h640v128H384z m0 192h640v128H384zM0 832h1024v128H0z m0-128V320l256 192z"></path></svg>',
     menuKeys: ['indent', 'delIndent']
   },
@@ -130,10 +135,10 @@ toolbarConfig.toolbarKeys = [
     menuKeys: ['uploadImage']
   },
   {
-    key: 'group-video', 
-    title: '视频', 
+    key: 'group-video',
+    title: '视频',
     iconSvg: '<svg viewBox="0 0 1024 1024"><path d="M981.184 160.096C837.568 139.456 678.848 128 512 128S186.432 139.456 42.816 160.096C15.296 267.808 0 386.848 0 512s15.264 244.16 42.816 351.904C186.464 884.544 345.152 896 512 896s325.568-11.456 469.184-32.096C1008.704 756.192 1024 637.152 1024 512s-15.264-244.16-42.816-351.904zM384 704V320l320 192-320 192z"></path></svg>',
-    menuKeys:['uploadVideo']
+    menuKeys: ['uploadVideo']
   },
   'insertTable',
   'codeBlock',
@@ -184,35 +189,9 @@ onBeforeUnmount(() => {
   if (editor == null) return
   editor.destroy()
 })
-const getQueryVariable = (url: string, variable: string) => {
-  var str = url.split('?');
-  var query = str[1];
-  var vars = query.split('&');
-  for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split("=");
-    if (pair[0] == variable) {
-      return pair[1];
-    }
-  }
-  return false;
-}
 const handleCreated = (editor: any) => {
   editorRef.value = editor // 记录 editor 实例，重要！
 }
-const emit = defineEmits<{
-  (event: "update:raw", value: string): void;
-  (event: "update:content", value: string): void;
-  (event: "update:visible", value: boolean): void;
-  (event: "close"): void;
-}>();
-
-watch(
-  () => valueHtml.value,
-  () => {
-    emit("update:raw", valueHtml.value);
-    emit("update:content", valueHtml.value);
-  }
-);
 
 </script>
 
