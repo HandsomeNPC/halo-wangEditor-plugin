@@ -43,6 +43,11 @@
         </VSpace>
       </template>
     </VModal>
+    <div>
+      <span>字数统计：</span>
+      <span>{{ wordNumber }}</span>
+      <span>字</span>
+    </div>
   </div>
 </template>
 
@@ -57,7 +62,10 @@ const visible = ref(false)
 const formState = reactive({
   imgUrl: ''
 })
+//编辑器中html的值
 const valueHtml = ref('');
+//字数
+const wordNumber = ref(0);
 
 //模式:默认
 const mode = 'default';
@@ -73,21 +81,34 @@ const props = withDefaults(
   }
 );
 
+/**
+ * 统计html中的字数
+ * @param html
+ */
+const getWordNumber = (html: String) => {
+  let text = html.replace(/<[^>]+>/g, ''); // 去掉 HTML 标签
+  text = text.replace(/[!-~]+/g, 'v');//转换半角符号
+  text = text.replace(/[a-zA-Z0-9]{2,}/g, 'x');//替换单词
+  text = text.replace(/\s+/g, ''); // 去掉空格
+  return text.length; // 返回字符串长度
+}
+watch(
+  () => valueHtml.value,
+  () => {
+    emit("update:raw", valueHtml.value);
+    emit("update:content", valueHtml.value);
+    wordNumber.value = getWordNumber(valueHtml.value);
+  }
+);
+
 valueHtml.value = props.raw;
+wordNumber.value = getWordNumber(valueHtml.value);
 
 const emit = defineEmits<{
   (event: "update:raw", value: string): void;
   (event: "update:content", value: string): void;
 }>();
 
-watch(
-  () => valueHtml.value,
-  () => {
-    emit("update:raw", valueHtml.value);
-    emit("update:content", valueHtml.value);
-
-  }
-);
 
 //工具栏配置
 const toolbarConfig = {}
