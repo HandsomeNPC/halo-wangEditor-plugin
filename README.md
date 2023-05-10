@@ -27,4 +27,4 @@ wangEditor是一个开源的富文本编辑器,官网:https://www.wangeditor.com
 
 ## 鸣谢
 
-感谢夏凯迪(https://gitee.com/xia-kaidi)、汪秋雨大佬的支持
+感谢[夏凯迪](https://gitee.com/xia-kaidi)、汪秋雨、[Ryan Wang](https://github.com/ruibaby)大佬的支持

@@ -43,11 +43,13 @@ import type {
   IToolbarConfig,
   SlateNode,
 } from "@wangeditor/editor";
-import type { AttachmentLike } from "@halo-dev/console-shared";
-import { SlateTransforms } from "@wangeditor/editor";
-import { useElementSize } from "@vueuse/core";
+import type {AttachmentLike} from "@halo-dev/console-shared";
+import {SlateTransforms} from "@wangeditor/editor";
+import {useElementSize} from "@vueuse/core";
 
 const editorRef = shallowRef<IDomEditor | null>(null);
+
+type InsertFnType = (url: string, alt: string, href: string) => void
 
 const props = withDefaults(
   defineProps<{
@@ -169,6 +171,7 @@ const editorConfig: Partial<IEditorConfig> = {
         attachmentAccepts.value = ["image/*"];
         attachmentSelectorModal.value = true;
       },
+      base64LimitSize: 10 * 1024 * 1024
     },
     uploadVideo: {
       customBrowseAndUpload: () => {
